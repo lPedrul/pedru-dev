@@ -57,7 +57,7 @@ jobs:
             docker-compose up -d
 
             # Copy nginx config
-            sudo cp nginx/default.conf /etc/nginx/sites-available/default
+            sudo cp nginx/default.conf /etc/nginx/sites-available/pedru.dev.br
 
             # Test nginx config
             sudo nginx -t
