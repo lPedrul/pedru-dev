@@ -33,8 +33,7 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          passphrase: ${{ secrets.VPS_PASSPHRASE }}
+          password: ${{ secrets.VPS_PASSWORD }}
           script: |
             echo "SSH connection successful!"
             whoami
@@ -44,7 +43,7 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          password: ${{ secrets.VPS_PASSWORD }}
           script: |
             # Pull the latest image
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/your-app:latest
