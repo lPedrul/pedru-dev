@@ -9,6 +9,19 @@ IMAGE_NAME="ghcr.io/lpedrul/pedru-dev:latest"
 
 echo "🚀 Starting deployment..."
 
+# Determine which compose command to use
+if command -v docker-compose &> /dev/null; then
+    COMPOSE_CMD="docker-compose"
+elif docker compose version &> /dev/null; then
+    COMPOSE_CMD="docker compose"
+else
+    echo "❌ Neither docker compose nor docker-compose found!"
+    echo "Please install Docker Compose. See DEPLOYMENT.md for instructions."
+    exit 1
+fi
+
+echo "✅ Using compose command: $COMPOSE_CMD"
+
 # Create project directory if it doesn't exist
 mkdir -p $PROJECT_DIR
 cd $PROJECT_DIR
@@ -25,7 +38,7 @@ docker pull $IMAGE_NAME
 
 # Stop and remove old containers
 echo "🛑 Stopping old containers..."
-docker compose down || true
+$COMPOSE_CMD down || true
 
 # Remove old images (keep last 2)
 echo "🧹 Cleaning up old images..."
@@ -33,7 +46,7 @@ docker images $IMAGE_NAME --format "table {{.Repository}}:{{.Tag}}\t{{.ID}}" | t
 
 # Start new containers
 echo "🔄 Starting new containers..."
-docker compose up -d
+$COMPOSE_CMD up -d
 
 # Wait for container to be healthy
 echo "⏳ Waiting for application to start..."
@@ -46,7 +59,7 @@ if curl -f http://localhost > /dev/null 2>&1; then
 else
     echo "❌ Deployment failed - application is not responding"
     echo "📋 Container logs:"
-    docker compose logs --tail=20
+    $COMPOSE_CMD logs --tail=20
     exit 1
 fi
 

@@ -85,11 +85,23 @@ jobs:
           # Pull the latest image
           docker pull ghcr.io/lpedrul/pedru-dev:latest
           
+          # Determine which compose command to use
+          if command -v docker-compose &> /dev/null; then
+            COMPOSE_CMD="docker-compose"
+          elif docker compose version &> /dev/null; then
+            COMPOSE_CMD="docker compose"
+          else
+            echo "Neither docker compose nor docker-compose found!"
+            exit 1
+          fi
+          
+          echo "Using compose command: $COMPOSE_CMD"
+          
           # Stop and remove old containers
-          docker compose down || true
+          $COMPOSE_CMD down || true
           
           # Start new containers
-          docker compose up -d
+          $COMPOSE_CMD up -d
           
           # Clean up old images
           docker image prune -f

@@ -23,19 +23,44 @@ VPS_SSH_KEY=your-private-ssh-key-content
 
 ### 2. VPS Prerequisites
 
-On your VPS, ensure you have:
+On your VPS, ensure you have Docker and Docker Compose installed:
 
 ```bash
-# Install Docker and Docker Compose
+# Method 1: Install Docker with Compose plugin (Recommended)
 curl -fsSL https://get.docker.com -o get-docker.sh
-sh get-docker.sh
+sudo sh get-docker.sh
 
-# Install Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
+# Install Docker Compose plugin
+sudo apt-get update
+sudo apt-get install docker-compose-plugin
 
 # Add your user to docker group
 sudo usermod -aG docker $USER
+newgrp docker
+
+# Method 2: If the above doesn't work, install standalone Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Verify installation
+docker --version
+docker compose version
+```
+
+**Troubleshooting Docker Compose:**
+
+If you get "docker: 'compose' is not a docker command", try these solutions:
+
+```bash
+# Option 1: Use docker-compose (with hyphen) instead
+docker-compose --version
+
+# Option 2: Install the compose plugin
+sudo apt-get update && sudo apt-get install docker-compose-plugin
+
+# Option 3: Use standalone docker-compose
+which docker-compose
+/usr/local/bin/docker-compose --version
 ```
 
 ### 3. VPS Directory Structure
@@ -114,15 +139,39 @@ docker compose restart nginx-react
 1. **Container won't start**:
    ```bash
    docker compose logs nginx-react
+   # or
+   docker-compose logs nginx-react
    ```
 
-2. **SSL issues**:
+2. **"docker: 'compose' is not a docker command" error**:
+   ```bash
+   # Try with hyphen instead
+   docker-compose --version
+   
+   # Or install the compose plugin
+   sudo apt-get install docker-compose-plugin
+   
+   # Or check if standalone docker-compose is installed
+   which docker-compose
+   ```
+
+3. **SSL issues**:
    ```bash
    docker exec pedru-dev ls -la /etc/letsencrypt/live/pedru.dev.br/
    ```
 
-3. **Build failures**:
+4. **Build failures**:
    Check GitHub Actions logs in your repository
+
+5. **Permission denied errors**:
+   ```bash
+   # Make sure your user is in the docker group
+   sudo usermod -aG docker $USER
+   newgrp docker
+   
+   # Or run with sudo
+   sudo docker compose up -d
+   ```
 
 ## Security Considerations
 
