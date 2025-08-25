@@ -16,7 +16,7 @@ cd $PROJECT_DIR
 # Download docker-compose.yml if it doesn't exist
 if [ ! -f $COMPOSE_FILE ]; then
     echo "📦 Downloading docker-compose.yml..."
-    curl -o $COMPOSE_FILE https://raw.githubusercontent.com/lPedrul/pedru-dev/main/docker-compose.yml
+    curl -o $COMPOSE_FILE https://raw.githubusercontent.com/lpedrul/pedru-dev/main/docker-compose.yml
 fi
 
 # Pull the latest image
