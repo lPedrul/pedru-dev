@@ -28,16 +28,6 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/pedru-dev:latest
 
-      - name: Copy files to VPS
-        uses: appleboy/scp-action@v0.1.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          passphrase: ${{ secrets.VPS_PASSPHRASE }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "docker-compose.yaml,nginx/default.conf, Dockerfile"
-          target: "~/pedru-dev/"
-
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -46,25 +36,32 @@ jobs:
           passphrase: ${{ secrets.VPS_PASSPHRASE }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd ~/your-app
+            cd ~/pedru-dev
+
+            echo "Pulling Latest Code..."
+            git pull origin main
+
+            echo "=== FILES VERIFICATION ==="
+            ls -la
+            echo "docker-compose.yml exists: $( [ -f docker-compose.yml ] && echo 'YES' || echo 'NO' )"
+            echo "nginx directory exists: $( [ -d nginx ] && echo 'YES' || echo 'NO' )"
             
-            # Pull the latest image
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/pedru-dev:latest
-
-            # Stop and remove old container
+            # Build and deploy
+            docker build -t pedru-dev:latest .
             docker-compose down || true
-
-            # Start new container
             docker-compose up -d
 
-            # Copy nginx config
-            sudo cp nginx/default.conf /etc/nginx/sites-available/pedru.dev.br
+            if [ -f nginx/default.conf ]; then
+              sudo cp nginx/default.conf /etc/nginx/sites-available/pedru.dev.br
 
-            # Test nginx config
-            sudo nginx -t
+              sudo nginx -t && sudo systemctl reload nginx
+            else
+              echo "Warning: nginx config not found"
+            fi
 
-            # Reload nginx
-            sudo systemctl reload nginx
+            echo "=== DEPLOYMENT VERIFICATION ==="
+            echo "Containers running:"
+            docker ps
+            echo "App health check:"
+            curl -f http://localhost:3000 || echo "App not responding yet"
 
-            # Clean up old images
-            docker image prune -f
