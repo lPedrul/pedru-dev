@@ -28,16 +28,14 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/pedru-dev:latest
 
-      - name: Test SSH connection
-        uses: appleboy/ssh-action@v0.1.10
+      - name: Copy files to VPS
+        uses: appleboy/scp-action@v0.1.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          passphrase: ${{ secrets.VPS_PASSPHRASE }}
-          script: |
-            echo "SSH connection successful!"
-            whoami
+          source: "docker-compose.yaml,nginx/default.conf"
+          target: "~/pedru-dev/"
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v0.1.10
@@ -47,6 +45,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           passphrase: ${{ secrets.VPS_PASSPHRASE }}
           script: |
+            cd ~/your-app
+            
             # Pull the latest image
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/pedru-dev:latest
 
