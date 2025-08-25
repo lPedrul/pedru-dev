@@ -1,0 +1,31 @@
+services:
+  nginx-react:
+    container_name: pedru-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      NODE_ENV: production
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    depends_on:
+      - nginx-react
+    profiles:
+      - donotstart
+    command: certonly --webroot --webroot-path=/var/www/certbot --email dejesus.pedro2002@gmail.com --agree-tos --no-eff-email --domains pedru.dev.br,www.pedru.dev.br --keep-until-expiring
+
+volumes:
+  letsencrypt:
+  certbot-www:
