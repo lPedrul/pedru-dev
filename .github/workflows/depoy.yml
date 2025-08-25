@@ -35,7 +35,7 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           passphrase: ${{ secrets.VPS_PASSPHRASE }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "docker-compose.yaml,nginx/default.conf"
+          source: "docker-compose.yaml,nginx/default.conf, Dockerfile"
           target: "~/pedru-dev/"
 
       - name: Deploy to VPS
