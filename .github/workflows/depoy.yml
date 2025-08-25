@@ -26,7 +26,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/your-app:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/pedru-dev:latest
 
       - name: Test SSH connection
         uses: appleboy/ssh-action@v0.1.10
@@ -48,7 +48,7 @@ jobs:
           passphrase: ${{ secrets.VPS_PASSPHRASE }}
           script: |
             # Pull the latest image
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/your-app:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/pedru-dev:latest
 
             # Stop and remove old container
             docker-compose down || true
